@@ -3,16 +3,17 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
 )
 
-func CommandExit(paginate *Config, paramater string) error {
+func CommandExit(cfg *Config, paramater string) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return nil
 }
 
-func CommandHelp(paginate *Config, paramater string) error {
+func CommandHelp(cfg *Config, paramater string) error {
 	command_list := ""
 	commands := getCommands()
 	for _, command := range commands {
@@ -62,10 +63,28 @@ func CommandExplore(cfg *Config, area_name string) error {
 	if err != nil {
 		return err
 	}
-
+	fmt.Println("You have found the following pokemon:")
 	for _, encounter := range locationResp.PokemonEncounters {
-		fmt.Println("You have found the following pokemon:")
 		fmt.Println(encounter.Pokemon.Name)
 	}
+	return nil
+}
+
+func CommandCatch(cfg *Config, pokemon string) error {
+	fmt.Printf("Throwing a Pokeball at %s...\n", pokemon)
+	pokemonResp, err := cfg.pokeapiClient.PokemonDetail(&pokemon)
+	if err != nil {
+		return err
+	}
+
+	number := rand.Intn(500)
+
+	if pokemonResp.BaseExperience < number {
+		fmt.Printf("%s was caught\n", pokemon)
+		AddToPokedex(cfg, pokemonResp)
+	} else {
+		fmt.Println("You missed!")
+	}
+
 	return nil
 }
