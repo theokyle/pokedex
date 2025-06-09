@@ -40,9 +40,17 @@ func startRepl(cfg *Config) {
 			continue
 		}
 
-		err := command.callback(cfg)
-		if err != nil {
-			fmt.Println(err)
+		if len(input) > 1 {
+			paramater := input[1]
+			err := command.callback(cfg, paramater)
+			if err != nil {
+				fmt.Println(err)
+			}
+		} else {
+			err := command.callback(cfg, "")
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	}
 }
@@ -50,7 +58,7 @@ func startRepl(cfg *Config) {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*Config) error
+	callback    func(*Config, string) error
 }
 
 func getCommands() map[string]cliCommand {
@@ -66,7 +74,7 @@ func getCommands() map[string]cliCommand {
 			callback:    CommandMapf,
 		},
 		"mapb": {
-			name:        "map",
+			name:        "mapb",
 			description: "Get the previous page of locations",
 			callback:    CommandMapb,
 		},
@@ -74,6 +82,11 @@ func getCommands() map[string]cliCommand {
 			name:        "exit",
 			description: "Exit the Pokedex",
 			callback:    CommandExit,
+		},
+		"explore": {
+			name:        "explore",
+			description: "see pokemon located in an area",
+			callback:    CommandExplore,
 		},
 	}
 }
